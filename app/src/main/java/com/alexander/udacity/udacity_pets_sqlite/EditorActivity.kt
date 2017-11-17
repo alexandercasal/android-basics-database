@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import com.alexander.udacity.udacity_pets_sqlite.data.PetContract.PetEntry
 import kotlinx.android.synthetic.main.activity_editor.spinner_gender
 
 class EditorActivity : AppCompatActivity() {
@@ -32,11 +33,11 @@ class EditorActivity : AppCompatActivity() {
                 val selection = parent.getItemAtPosition(position) as String
                 if (selection.isNotEmpty()) {
                     if (selection == getString(R.string.gender_male)) {
-                        mGender = 1 // Male
+                        mGender = PetEntry.GENDER_MALE
                     } else if (selection == getString(R.string.gender_female)) {
-                        mGender = 2
+                        mGender = PetEntry.GENDER_FEMALE
                     } else {
-                        mGender = 0
+                        mGender = PetEntry.GENDER_UNKNOWN
                     }
                 }
             }
