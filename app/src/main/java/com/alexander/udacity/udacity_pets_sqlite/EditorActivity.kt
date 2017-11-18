@@ -2,6 +2,7 @@ package com.alexander.udacity.udacity_pets_sqlite
 
 import android.content.ContentUris
 import android.content.ContentValues
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.NavUtils
@@ -96,12 +97,38 @@ class EditorActivity : AppCompatActivity() {
         contentValues.put(PetContract.PetEntry.COLUMN_PET_BREED, breed)
         contentValues.put(PetContract.PetEntry.COLUMN_PET_GENDER, gender)
         contentValues.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weight)
-        val newPetUri = contentResolver.insert(PetContract.PetEntry.CONTENT_URI, contentValues)
+
+        var newPetUri: Uri? = null
+        if (isValidPet(name, breed, gender, weight)) {
+            newPetUri = contentResolver.insert(PetContract.PetEntry.CONTENT_URI, contentValues)
+        } else {
+            Toast.makeText(this, getString(R.string.missing_pet_info), Toast.LENGTH_SHORT).show()
+        }
 
         if (newPetUri != null) {
             Toast.makeText(this, getString(R.string.pet_saved), Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, getString(R.string.unable_save_pet), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun isValidPet(name: String?, breed: String?, gender: Int?, weight: Int?): Boolean {
+        if (name?.isEmpty() ?: true) {
+            return false
+        }
+        if (breed?.isEmpty() ?: true) {
+            return false
+        }
+        if (weight == null) {
+            return false
+        }
+        if (gender == null || (gender != null
+                && (gender != PetContract.PetEntry.GENDER_FEMALE
+                && gender != PetContract.PetEntry.GENDER_MALE
+                && gender != PetContract.PetEntry.GENDER_UNKNOWN))) {
+            return false
+        }
+
+        return true
     }
 }

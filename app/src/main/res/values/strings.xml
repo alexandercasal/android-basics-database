@@ -61,4 +61,6 @@
     <string name="pet_saved">Pet saved</string>
 
     <string name="unable_save_pet">Unable to save pet</string>
+
+    <string name="missing_pet_info">Missing pet details</string>
 </resources>
