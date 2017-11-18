@@ -1,5 +1,7 @@
 package com.alexander.udacity.udacity_pets_sqlite
 
+import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -7,6 +9,7 @@ import android.support.design.widget.FloatingActionButton
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
+import android.widget.Toast
 import com.alexander.udacity.udacity_pets_sqlite.data.PetContract
 
 class CatalogActivity : AppCompatActivity() {
@@ -49,16 +52,19 @@ class CatalogActivity : AppCompatActivity() {
     }
 
     private fun insertPet() {
-        /*val db = PetDbHelper(this).writableDatabase
-
         val contentValues = ContentValues()
         contentValues.put(PetContract.PetEntry.COLUMN_PET_NAME, "Toto")
         contentValues.put(PetContract.PetEntry.COLUMN_PET_BREED, "Terrier")
         contentValues.put(PetContract.PetEntry.COLUMN_PET_GENDER, PetContract.PetEntry.GENDER_MALE)
         contentValues.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, 7)
 
-        val newRowID = db.insert(PetContract.PetEntry.TABLE_NAME, null, contentValues)
-        Log.v(TAG, "New row ID = $newRowID")*/
+        val newPetUri = contentResolver.insert(PetContract.PetEntry.CONTENT_URI, contentValues)
+
+        if (newPetUri != null) {
+            Toast.makeText(this, getString(R.string.pet_saved), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, getString(R.string.unable_save_pet), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun displayDatabaseInfo() {

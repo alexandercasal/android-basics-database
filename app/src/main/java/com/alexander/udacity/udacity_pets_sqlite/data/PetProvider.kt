@@ -66,7 +66,14 @@ class PetProvider : ContentProvider() {
     }
 
     override fun insert(uri: Uri, contentValues: ContentValues): Uri? {
-        return null
+        val match = sUriMatcher.match(uri)
+
+        when (match) {
+            PETS -> {
+                return insertPet(uri, contentValues)
+            }
+            else -> throw IllegalArgumentException("Insertion is not supported for " + uri)
+        }
     }
 
     override fun update(uri: Uri, contentValues: ContentValues, selection: String?,
@@ -80,5 +87,17 @@ class PetProvider : ContentProvider() {
 
     override fun getType(uri: Uri): String? {
         return null
+    }
+
+    private fun insertPet(uri: Uri, contentValues: ContentValues): Uri? {
+        val db = mDbHelper.writableDatabase
+
+        val newPetID = db.insert(PetContract.PetEntry.TABLE_NAME, null, contentValues)
+
+        if (newPetID != -1L) {
+            return ContentUris.withAppendedId(uri, newPetID)
+        } else {
+            return null
+        }
     }
 }
