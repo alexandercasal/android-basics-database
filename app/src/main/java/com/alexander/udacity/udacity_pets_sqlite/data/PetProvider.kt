@@ -1,6 +1,7 @@
 package com.alexander.udacity.udacity_pets_sqlite.data
 
 import android.content.ContentProvider
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
@@ -27,21 +28,53 @@ class PetProvider : ContentProvider() {
         return true
     }
 
-    override fun query(uri: Uri, projection: Array<String>, selection: String,
-                       selectionArgs: Array<String>, sortOrder: String): Cursor? {
-        return null
+    override fun query(uri: Uri, projection: Array<String>?, selection: String?,
+                       selectionArgs: Array<String>?, sortOrder: String?): Cursor {
+        val db = mDbHelper.readableDatabase
+        val cursor: Cursor
+
+        val match = sUriMatcher.match(uri)
+        when (match) {
+            PETS -> {
+                cursor = db.query(
+                        PetContract.PetEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                )
+            }
+            PET_ID -> {
+                val select = "${PetContract.PetEntry._ID} = ?"
+                val args = arrayOf(ContentUris.parseId(uri).toString())
+                cursor = db.query(
+                        PetContract.PetEntry.TABLE_NAME,
+                        projection,
+                        select,
+                        args,
+                        null,
+                        null,
+                        sortOrder
+                )
+            }
+            else -> throw IllegalArgumentException("Cannot query unknown URI " + uri)
+        }
+
+        return cursor
     }
 
     override fun insert(uri: Uri, contentValues: ContentValues): Uri? {
         return null
     }
 
-    override fun update(uri: Uri, contentValues: ContentValues, selection: String,
-                        selectionArgs: Array<String>): Int {
+    override fun update(uri: Uri, contentValues: ContentValues, selection: String?,
+                        selectionArgs: Array<String>?): Int {
         return 0
     }
 
-    override fun delete(uri: Uri, selection: String, selectionArgs: Array<String>): Int {
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         return 0
     }
 

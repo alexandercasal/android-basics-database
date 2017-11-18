@@ -1,21 +1,17 @@
 package com.alexander.udacity.udacity_pets_sqlite
 
-import android.content.ContentValues
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import com.alexander.udacity.udacity_pets_sqlite.data.PetContract
-import com.alexander.udacity.udacity_pets_sqlite.data.PetDbHelper
 
 class CatalogActivity : AppCompatActivity() {
 
     private val TAG = CatalogActivity::class.java.simpleName
-    private lateinit var mDBHelper: PetDbHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,8 +22,6 @@ class CatalogActivity : AppCompatActivity() {
             val intent = Intent(this, EditorActivity::class.java)
             startActivity(intent)
         }
-
-        mDBHelper = PetDbHelper(this)
     }
 
     override fun onStart() {
@@ -55,7 +49,7 @@ class CatalogActivity : AppCompatActivity() {
     }
 
     private fun insertPet() {
-        val db = mDBHelper.writableDatabase
+        /*val db = PetDbHelper(this).writableDatabase
 
         val contentValues = ContentValues()
         contentValues.put(PetContract.PetEntry.COLUMN_PET_NAME, "Toto")
@@ -64,17 +58,21 @@ class CatalogActivity : AppCompatActivity() {
         contentValues.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, 7)
 
         val newRowID = db.insert(PetContract.PetEntry.TABLE_NAME, null, contentValues)
-        Log.v(TAG, "New row ID = $newRowID")
+        Log.v(TAG, "New row ID = $newRowID")*/
     }
 
     private fun displayDatabaseInfo() {
-        val db = mDBHelper.readableDatabase
+        val projection = arrayOf(
+                PetContract.PetEntry._ID,
+                PetContract.PetEntry.COLUMN_PET_NAME,
+                PetContract.PetEntry.COLUMN_PET_BREED,
+                PetContract.PetEntry.COLUMN_PET_GENDER,
+                PetContract.PetEntry.COLUMN_PET_WEIGHT
+        )
 
-        val cursor = db.query(
-                PetContract.PetEntry.TABLE_NAME,
-                null,
-                null,
-                null,
+        val cursor = contentResolver.query(
+                PetContract.PetEntry.CONTENT_URI,
+                projection,
                 null,
                 null,
                 null
