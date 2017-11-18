@@ -33,7 +33,7 @@ class PetContract {
             }
 
             fun isValidBreed(breed: String?): Boolean {
-                return breed != null && breed.isNotEmpty()
+                return true
             }
 
             fun isValidWeight(weight: Int?): Boolean {
