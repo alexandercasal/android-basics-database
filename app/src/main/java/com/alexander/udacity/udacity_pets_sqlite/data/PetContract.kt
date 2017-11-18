@@ -27,7 +27,23 @@ class PetContract {
             const val GENDER_MALE: Int = 1
             const val GENDER_FEMALE: Int = 2
             const val GENDER_UNKNOWN: Int = 0
-        }
 
+            fun isValidName(name: String?):Boolean {
+                return name != null && name.isNotEmpty()
+            }
+
+            fun isValidBreed(breed: String?): Boolean {
+                return breed != null && breed.isNotEmpty()
+            }
+
+            fun isValidWeight(weight: Int?): Boolean {
+                return weight != null && weight > 0
+            }
+
+            fun isValidGender(gender: Int?): Boolean {
+                return gender != null && (gender == GENDER_MALE || gender == GENDER_FEMALE
+                        || gender == GENDER_UNKNOWN)
+            }
+        }
     }
 }
