@@ -28,6 +28,10 @@ class CatalogActivity : AppCompatActivity() {
         }
 
         mDBHelper = PetDbHelper(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
         displayDatabaseInfo()
     }
 
