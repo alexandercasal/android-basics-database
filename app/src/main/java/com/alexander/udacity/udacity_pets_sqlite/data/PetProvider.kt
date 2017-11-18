@@ -93,6 +93,19 @@ class PetProvider : ContentProvider() {
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
+        val db = mDbHelper.writableDatabase
+        val match = sUriMatcher.match(uri)
+
+        when (match) {
+            PETS -> return db.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs)
+            PET_ID -> {
+                val select = "${PetContract.PetEntry._ID} = ?"
+                val args = arrayOf(ContentUris.parseId(uri).toString())
+                return db.delete(PetContract.PetEntry.TABLE_NAME, select, args)
+            }
+            else -> throw IllegalArgumentException("Deletion is not supported for $uri")
+        }
+
         return 0
     }
 
