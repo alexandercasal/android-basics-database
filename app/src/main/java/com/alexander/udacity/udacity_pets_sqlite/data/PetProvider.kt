@@ -90,6 +90,27 @@ class PetProvider : ContentProvider() {
     }
 
     private fun insertPet(uri: Uri, contentValues: ContentValues): Uri? {
+        val name = contentValues.getAsString(PetContract.PetEntry.COLUMN_PET_NAME)
+        val breed = contentValues.getAsString(PetContract.PetEntry.COLUMN_PET_BREED)
+        val weight = contentValues.getAsInteger(PetContract.PetEntry.COLUMN_PET_WEIGHT)
+        val gender = contentValues.getAsInteger(PetContract.PetEntry.COLUMN_PET_BREED)
+        if (name?.isEmpty() ?: true) {
+            throw IllegalArgumentException("Pet requires a name")
+        }
+        if (breed?.isEmpty() ?: true) {
+            throw IllegalArgumentException("Pet requires a breed")
+        }
+        if (weight == null) {
+            throw IllegalArgumentException("Pet requires a weight")
+        }
+        if (gender == null || (gender != null
+                && (gender != PetContract.PetEntry.GENDER_FEMALE
+                || gender != PetContract.PetEntry.GENDER_MALE
+                || gender != PetContract.PetEntry.GENDER_UNKNOWN))) {
+            throw IllegalArgumentException("Invalid pet gender: $gender")
+        }
+
+
         val db = mDbHelper.writableDatabase
 
         val newPetID = db.insert(PetContract.PetEntry.TABLE_NAME, null, contentValues)
