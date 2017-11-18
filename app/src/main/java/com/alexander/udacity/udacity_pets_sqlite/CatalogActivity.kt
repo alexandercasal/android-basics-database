@@ -70,10 +70,32 @@ class CatalogActivity : AppCompatActivity() {
     private fun displayDatabaseInfo() {
         val db = mDBHelper.readableDatabase
 
-        val cursor = db.rawQuery("SELECT * FROM ${PetContract.PetEntry.TABLE_NAME}", null)
+        val cursor = db.query(
+                PetContract.PetEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        )
+
         try {
+            val idIndex = cursor.getColumnIndex(PetContract.PetEntry._ID)
+            val nameIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME)
+            val breedIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED)
+            val weightIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT)
+
             val displayView = findViewById<TextView>(R.id.text_view_pet)
-            displayView.text = "Num rows in pets database table: ${cursor.count}"
+            val displayBuilder = StringBuilder()
+            displayBuilder.append("Num rows in pets database table: ${cursor.count}\n")
+            while (cursor.moveToNext()) {
+                displayBuilder.append(
+                        "${cursor.getLong(idIndex)} - ${cursor.getString(nameIndex)} - " +
+                                "${cursor.getString(breedIndex)} - ${cursor.getInt(weightIndex)}\n"
+                )
+            }
+            displayView.text = displayBuilder.toString()
         } finally {
             cursor.close()
         }
