@@ -93,7 +93,7 @@ class PetProvider : ContentProvider() {
         val name = contentValues.getAsString(PetContract.PetEntry.COLUMN_PET_NAME)
         val breed = contentValues.getAsString(PetContract.PetEntry.COLUMN_PET_BREED)
         val weight = contentValues.getAsInteger(PetContract.PetEntry.COLUMN_PET_WEIGHT)
-        val gender = contentValues.getAsInteger(PetContract.PetEntry.COLUMN_PET_BREED)
+        val gender = contentValues.getAsInteger(PetContract.PetEntry.COLUMN_PET_GENDER)
         if (name?.isEmpty() ?: true) {
             throw IllegalArgumentException("Pet requires a name")
         }
@@ -105,8 +105,8 @@ class PetProvider : ContentProvider() {
         }
         if (gender == null || (gender != null
                 && (gender != PetContract.PetEntry.GENDER_FEMALE
-                || gender != PetContract.PetEntry.GENDER_MALE
-                || gender != PetContract.PetEntry.GENDER_UNKNOWN))) {
+                && gender != PetContract.PetEntry.GENDER_MALE
+                && gender != PetContract.PetEntry.GENDER_UNKNOWN))) {
             throw IllegalArgumentException("Invalid pet gender: $gender")
         }
 
