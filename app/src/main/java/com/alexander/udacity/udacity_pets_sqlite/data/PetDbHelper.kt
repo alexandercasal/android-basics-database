@@ -18,7 +18,8 @@ class PetDbHelper(context: Context)
     private val CREATE_TABLE = """CREATE TABLE ${PetContract.PetEntry.TABLE_NAME} (
         |${PetContract.PetEntry._ID} INTEGER PRIMARY KEY AUTOINCREMENT,
         |${PetContract.PetEntry.COLUMN_PET_NAME} TEXT NOT NULL,
-        |${PetContract.PetEntry.COLUMN_PET_GENDER} INTEGER NOT NULL,
+        |${PetContract.PetEntry.COLUMN_PET_GENDER},
+        |${PetContract.PetEntry.COLUMN_PET_BREED},
         |${PetContract.PetEntry.COLUMN_PET_WEIGHT} INTEGER NOT NULL DEFAULT 0);""".trimMargin()
     private val DROP_TABLE = "DROP TABLE ${PetContract.PetEntry.TABLE_NAME});"
 
