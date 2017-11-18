@@ -18,8 +18,11 @@
         </activity>
         <activity android:name=".EditorActivity"
             android:parentActivityName=".CatalogActivity">
-
         </activity>
+        <provider
+            android:authorities="com.alexander.udacity.udacity_pets_sqlite"
+            android:name=".data.PetProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>
