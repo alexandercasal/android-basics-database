@@ -62,5 +62,11 @@
 
     <string name="unable_save_pet">Unable to save pet</string>
 
-    <string name="missing_pet_info">Missing pet details</string>
+    <string name="invalid_pet_name">Invalid pet name</string>
+
+    <string name="invalid_pet_breed">Invalid pet breed</string>
+
+    <string name="invalid_pet_weight">Invalid pet weight</string>
+
+    <string name="invalid_pet_gender">Invalid pet gender</string>
 </resources>

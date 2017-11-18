@@ -98,11 +98,11 @@ class EditorActivity : AppCompatActivity() {
         contentValues.put(PetContract.PetEntry.COLUMN_PET_GENDER, gender)
         contentValues.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weight)
 
-        var newPetUri: Uri? = null
+        var newPetUri: Uri?
         if (isValidPet(name, breed, gender, weight)) {
             newPetUri = contentResolver.insert(PetContract.PetEntry.CONTENT_URI, contentValues)
         } else {
-            Toast.makeText(this, getString(R.string.missing_pet_info), Toast.LENGTH_SHORT).show()
+            return
         }
 
         if (newPetUri != null) {
@@ -113,19 +113,20 @@ class EditorActivity : AppCompatActivity() {
     }
 
     private fun isValidPet(name: String?, breed: String?, gender: Int?, weight: Int?): Boolean {
-        if (name?.isEmpty() ?: true) {
+        if (!PetEntry.isValidName(name)) {
+            Toast.makeText(this, getString(R.string.invalid_pet_name), Toast.LENGTH_SHORT).show()
             return false
         }
-        if (breed?.isEmpty() ?: true) {
+        if (!PetEntry.isValidBreed(breed)) {
+            Toast.makeText(this, getString(R.string.invalid_pet_breed), Toast.LENGTH_SHORT).show()
             return false
         }
-        if (weight == null) {
+        if (!PetEntry.isValidWeight(weight)) {
+            Toast.makeText(this, getString(R.string.invalid_pet_weight), Toast.LENGTH_SHORT).show()
             return false
         }
-        if (gender == null || (gender != null
-                && (gender != PetContract.PetEntry.GENDER_FEMALE
-                && gender != PetContract.PetEntry.GENDER_MALE
-                && gender != PetContract.PetEntry.GENDER_UNKNOWN))) {
+        if (!PetEntry.isValidGender(gender)) {
+            Toast.makeText(this, getString(R.string.invalid_pet_gender), Toast.LENGTH_SHORT).show()
             return false
         }
 
