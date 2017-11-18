@@ -1,5 +1,6 @@
 package com.alexander.udacity.udacity_pets_sqlite.data
 
+import android.content.ContentResolver
 import android.net.Uri
 import android.provider.BaseColumns
 
@@ -14,9 +15,13 @@ class PetContract {
 
     class PetEntry {
         companion object {
+            // URI Constants
             val CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS)
-            const val TABLE_NAME: String = "pets"
+            const val CONTENT_LIST_TYPE = "${ContentResolver.CURSOR_DIR_BASE_TYPE}/$CONTENT_AUTHORITY/$PATH_PETS"
+            const val CONTENT_ITEM_TYPE = "${ContentResolver.CURSOR_ITEM_BASE_TYPE}/$CONTENT_AUTHORITY/$PATH_PETS"
 
+            // Database constants
+            const val TABLE_NAME: String = "pets"
             const val _ID = BaseColumns._ID
             const val COLUMN_PET_NAME: String = "name"
             const val COLUMN_PET_BREED: String = "breed"

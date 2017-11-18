@@ -109,8 +109,13 @@ class PetProvider : ContentProvider() {
         return 0
     }
 
-    override fun getType(uri: Uri): String? {
-        return null
+    override fun getType(uri: Uri): String {
+        val match = sUriMatcher.match(uri)
+        return when (match) {
+            PETS -> PetContract.PetEntry.CONTENT_LIST_TYPE
+            PET_ID -> PetContract.PetEntry.CONTENT_ITEM_TYPE
+            else -> throw IllegalArgumentException("Unknown URI $uri with match $match")
+        }
     }
 
     private fun insertPet(uri: Uri, contentValues: ContentValues): Uri? {
