@@ -57,6 +57,7 @@ class CatalogActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curso
                 return true
             }
             R.id.action_delete_all_entries -> {
+                deleteAllPets()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -77,6 +78,10 @@ class CatalogActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curso
         } else {
             Toast.makeText(this, getString(R.string.unable_save_pet), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun deleteAllPets() {
+        contentResolver.delete(PetContract.PetEntry.CONTENT_URI, null, null)
     }
 
     override fun onCreateLoader(id: Int, bundle: Bundle?): Loader<Cursor>? {

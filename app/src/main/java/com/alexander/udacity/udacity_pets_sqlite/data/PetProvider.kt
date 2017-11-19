@@ -101,7 +101,13 @@ class PetProvider : ContentProvider() {
         val match = sUriMatcher.match(uri)
 
         when (match) {
-            PETS -> return db.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs)
+            PETS -> {
+                val rowsDeleted = db.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs)
+                if (rowsDeleted > 0) {
+                    context.contentResolver.notifyChange(uri, null)
+                }
+                return rowsDeleted
+            }
             PET_ID -> {
                 val select = "${PetContract.PetEntry._ID} = ?"
                 val args = arrayOf(ContentUris.parseId(uri).toString())

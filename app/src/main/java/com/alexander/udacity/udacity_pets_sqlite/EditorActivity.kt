@@ -118,7 +118,11 @@ class EditorActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
                 finish()
                 return true
             }
-            R.id.action_delete -> return true
+            R.id.action_delete -> {
+                deletePet()
+                finish()
+                return true
+            }
             android.R.id.home -> {
                 if (!mPetHasChanges) {
                     NavUtils.navigateUpFromSameTask(this)
@@ -214,6 +218,12 @@ class EditorActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
         }
     }
 
+    private fun deletePet() {
+        if (mUri != null) {
+            contentResolver.delete(mUri, null, null)
+        }
+    }
+
     private fun isValidPet(name: String?, breed: String?, gender: Int?, weight: Int?): Boolean {
         if (!PetEntry.isValidName(name)) {
             Toast.makeText(this, getString(R.string.invalid_pet_name), Toast.LENGTH_SHORT).show()
@@ -245,16 +255,17 @@ class EditorActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
         if (loader.id == ID_LOADER_PET) {
-            cursor.moveToFirst()
-            val petName = cursor.getString(cursor.getColumnIndex(PetEntry.COLUMN_PET_NAME))
-            val petBreed = cursor.getString(cursor.getColumnIndex(PetEntry.COLUMN_PET_BREED))
-            val petWeight = cursor.getInt(cursor.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT))
-            val petGender = cursor.getInt(cursor.getColumnIndex(PetEntry.COLUMN_PET_GENDER))
+            if (cursor.moveToFirst()) {
+                val petName = cursor.getString(cursor.getColumnIndex(PetEntry.COLUMN_PET_NAME))
+                val petBreed = cursor.getString(cursor.getColumnIndex(PetEntry.COLUMN_PET_BREED))
+                val petWeight = cursor.getInt(cursor.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT))
+                val petGender = cursor.getInt(cursor.getColumnIndex(PetEntry.COLUMN_PET_GENDER))
 
-            edit_pet_name.setText(petName)
-            edit_pet_breed.setText(petBreed)
-            edit_pet_weight.setText(petWeight.toString())
-            spinner_gender.setSelection(petGender)
+                edit_pet_name.setText(petName)
+                edit_pet_breed.setText(petBreed)
+                edit_pet_weight.setText(petWeight.toString())
+                spinner_gender.setSelection(petGender)
+            }
         }
     }
 
