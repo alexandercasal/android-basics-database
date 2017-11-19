@@ -1,8 +1,10 @@
 package com.alexander.udacity.udacity_pets_sqlite
 
+import android.app.AlertDialog
 import android.app.LoaderManager
 import android.content.ContentValues
 import android.content.CursorLoader
+import android.content.DialogInterface
 import android.content.Loader
 import android.database.Cursor
 import android.net.Uri
@@ -12,6 +14,7 @@ import android.support.v4.app.NavUtils
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -29,6 +32,14 @@ class EditorActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
     private val ID_LOADER_PET = 0
     private var mGender = 0
     private var mUri: Uri? = null
+    private var mPetHasChanges = false
+
+    private inner class mTouchListener : View.OnTouchListener {
+        override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+            mPetHasChanges = true
+            return false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +49,10 @@ class EditorActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
         setEditMode()
 
         loaderManager.initLoader(ID_LOADER_PET, null, this)
+        edit_pet_name.setOnTouchListener(mTouchListener())
+        edit_pet_breed.setOnTouchListener(mTouchListener())
+        edit_pet_weight.setOnTouchListener(mTouchListener())
+        spinner_gender.setOnTouchListener(mTouchListener())
     }
 
     private fun setupSpinner() {
@@ -92,11 +107,33 @@ class EditorActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
             }
             R.id.action_delete -> return true
             android.R.id.home -> {
-                NavUtils.navigateUpFromSameTask(this)
+                if (!mPetHasChanges) {
+                    NavUtils.navigateUpFromSameTask(this)
+                    return true
+                }
+
+                showUnsavedChangesDialog(object : DialogInterface.OnClickListener {
+                    override fun onClick(p0: DialogInterface?, p1: Int) {
+                        NavUtils.navigateUpFromSameTask(this@EditorActivity)
+                    }
+                })
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onBackPressed() {
+        if (!mPetHasChanges) {
+            super.onBackPressed()
+            return
+        }
+
+        showUnsavedChangesDialog(object : DialogInterface.OnClickListener {
+            override fun onClick(p0: DialogInterface?, p1: Int) {
+                finish()
+            }
+        })
     }
 
     private fun insertPet() {
@@ -213,5 +250,18 @@ class EditorActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
         edit_pet_breed.text.clear()
         edit_pet_weight.text.clear()
         spinner_gender.setSelection(0)
+    }
+
+    private fun showUnsavedChangesDialog(discardButtonClickListener: DialogInterface.OnClickListener) {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(R.string.unsaved_changes_dialog_msg)
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener)
+        builder.setNegativeButton(R.string.keep_editing, { dialogInterface: DialogInterface, i: Int ->
+            if (dialogInterface != null) {
+                dialogInterface.dismiss()
+            }
+        })
+
+        builder.create().show()
     }
 }
