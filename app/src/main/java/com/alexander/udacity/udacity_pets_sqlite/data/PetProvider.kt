@@ -62,6 +62,8 @@ class PetProvider : ContentProvider() {
             else -> throw IllegalArgumentException("Cannot query unknown URI " + uri)
         }
 
+        cursor.setNotificationUri(context.contentResolver, uri)
+
         return cursor
     }
 
@@ -101,7 +103,11 @@ class PetProvider : ContentProvider() {
             PET_ID -> {
                 val select = "${PetContract.PetEntry._ID} = ?"
                 val args = arrayOf(ContentUris.parseId(uri).toString())
-                return db.delete(PetContract.PetEntry.TABLE_NAME, select, args)
+                val rowsDeleted = db.delete(PetContract.PetEntry.TABLE_NAME, select, args)
+                if (rowsDeleted > 0) {
+                    context.contentResolver.notifyChange(uri, null)
+                }
+                return rowsDeleted
             }
             else -> throw IllegalArgumentException("Deletion is not supported for $uri")
         }
@@ -140,6 +146,7 @@ class PetProvider : ContentProvider() {
         val newPetID = db.insert(PetContract.PetEntry.TABLE_NAME, null, contentValues)
 
         if (newPetID != -1L) {
+            context.contentResolver.notifyChange(uri, null)
             return ContentUris.withAppendedId(uri, newPetID)
         } else {
             return null
@@ -172,6 +179,11 @@ class PetProvider : ContentProvider() {
         }
 
         val db = mDbHelper.writableDatabase
-        return db.update(PetContract.PetEntry.TABLE_NAME, contentValues, selection, selectionArgs)
+        val rowsUpdated = db.update(PetContract.PetEntry.TABLE_NAME, contentValues, selection, selectionArgs)
+        if (rowsUpdated > 0) {
+            context.contentResolver.notifyChange(uri, null)
+        }
+
+        return rowsUpdated
     }
 }

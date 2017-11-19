@@ -1,20 +1,26 @@
 package com.alexander.udacity.udacity_pets_sqlite
 
-import android.content.ContentUris
+import android.app.LoaderManager
 import android.content.ContentValues
+import android.content.CursorLoader
 import android.content.Intent
+import android.content.Loader
+import android.database.Cursor
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import android.widget.Toast
 import com.alexander.udacity.udacity_pets_sqlite.data.PetContract
+import kotlinx.android.synthetic.main.activity_catalog.empty_view
+import kotlinx.android.synthetic.main.activity_catalog.list_view_pets
 
-class CatalogActivity : AppCompatActivity() {
+class CatalogActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {
 
     private val TAG = CatalogActivity::class.java.simpleName
+    private val ID_PET_LOADER = 0
+    private lateinit var mCursorAdapter: PetCursorAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,11 +31,12 @@ class CatalogActivity : AppCompatActivity() {
             val intent = Intent(this, EditorActivity::class.java)
             startActivity(intent)
         }
-    }
 
-    override fun onStart() {
-        super.onStart()
-        displayDatabaseInfo()
+        list_view_pets.emptyView = empty_view
+        mCursorAdapter = PetCursorAdapter(this, null)
+        list_view_pets.adapter = mCursorAdapter
+
+        loaderManager.initLoader(ID_PET_LOADER, null, this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -41,7 +48,6 @@ class CatalogActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_insert_dummy_data -> {
                 insertPet()
-                displayDatabaseInfo()
                 return true
             }
             R.id.action_delete_all_entries -> {
@@ -67,41 +73,33 @@ class CatalogActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayDatabaseInfo() {
-        val projection = arrayOf(
-                PetContract.PetEntry._ID,
-                PetContract.PetEntry.COLUMN_PET_NAME,
-                PetContract.PetEntry.COLUMN_PET_BREED,
-                PetContract.PetEntry.COLUMN_PET_GENDER,
-                PetContract.PetEntry.COLUMN_PET_WEIGHT
-        )
+    override fun onCreateLoader(id: Int, bundle: Bundle?): Loader<Cursor>? {
+        if (id == ID_PET_LOADER) {
+            val projection = arrayOf(
+                    PetContract.PetEntry._ID,
+                    PetContract.PetEntry.COLUMN_PET_NAME,
+                    PetContract.PetEntry.COLUMN_PET_BREED
+            )
 
-        val cursor = contentResolver.query(
-                PetContract.PetEntry.CONTENT_URI,
-                projection,
-                null,
-                null,
-                null
-        )
 
-        try {
-            val idIndex = cursor.getColumnIndex(PetContract.PetEntry._ID)
-            val nameIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME)
-            val breedIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED)
-            val weightIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT)
+            val cursorLoader = CursorLoader(this)
+            cursorLoader.uri = PetContract.PetEntry.CONTENT_URI
+            cursorLoader.projection = projection
+            return cursorLoader
+        }
 
-            val displayView = findViewById<TextView>(R.id.text_view_pet)
-            val displayBuilder = StringBuilder()
-            displayBuilder.append("Num rows in pets database table: ${cursor.count}\n")
-            while (cursor.moveToNext()) {
-                displayBuilder.append(
-                        "${cursor.getLong(idIndex)} - ${cursor.getString(nameIndex)} - " +
-                                "${cursor.getString(breedIndex)} - ${cursor.getInt(weightIndex)}\n"
-                )
-            }
-            displayView.text = displayBuilder.toString()
-        } finally {
-            cursor.close()
+        return null
+    }
+
+    override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
+        if (loader.id == ID_PET_LOADER) {
+            mCursorAdapter.swapCursor(cursor)
+        }
+    }
+
+    override fun onLoaderReset(loader: Loader<Cursor>) {
+        if (loader.id == ID_PET_LOADER) {
+            mCursorAdapter.swapCursor(null)
         }
     }
 }
