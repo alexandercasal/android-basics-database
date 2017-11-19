@@ -84,9 +84,22 @@ class EditorActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor
     private fun setEditMode() {
         mUri = intent.data
 
-        mUri?.let {
+        if (mUri == null) {
+            invalidateOptionsMenu()
+            setTitle(getString(R.string.editor_activity_title_new_pet))
+        } else {
             setTitle(getString(R.string.editor_activity_title_edit_pet))
-        } ?: setTitle(getString(R.string.editor_activity_title_new_pet))
+        }
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        super.onPrepareOptionsMenu(menu)
+
+        if (mUri  == null) {
+            val menuItem = menu.findItem(R.id.action_delete)
+            menuItem.setVisible(false)
+        }
+        return true
     }
 
     override fun onCreateOptionsMenu(menu: Menu) : Boolean {
