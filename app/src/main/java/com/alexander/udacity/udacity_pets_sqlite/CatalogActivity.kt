@@ -1,6 +1,7 @@
 package com.alexander.udacity.udacity_pets_sqlite
 
 import android.app.LoaderManager
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.CursorLoader
 import android.content.Intent
@@ -35,6 +36,11 @@ class CatalogActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curso
         list_view_pets.emptyView = empty_view
         mCursorAdapter = PetCursorAdapter(this, null)
         list_view_pets.adapter = mCursorAdapter
+        list_view_pets.setOnItemClickListener { _, _, pos, id ->
+            val intent = Intent(this, EditorActivity::class.java)
+            intent.setData(ContentUris.withAppendedId(PetContract.PetEntry.CONTENT_URI, id))
+            startActivity(intent)
+        }
 
         loaderManager.initLoader(ID_PET_LOADER, null, this)
     }

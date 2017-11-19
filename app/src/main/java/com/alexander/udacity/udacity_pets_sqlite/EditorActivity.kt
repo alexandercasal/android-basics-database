@@ -1,7 +1,10 @@
 package com.alexander.udacity.udacity_pets_sqlite
 
-import android.content.ContentUris
+import android.app.LoaderManager
 import android.content.ContentValues
+import android.content.CursorLoader
+import android.content.Loader
+import android.database.Cursor
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -15,22 +18,26 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.alexander.udacity.udacity_pets_sqlite.data.PetContract
 import com.alexander.udacity.udacity_pets_sqlite.data.PetContract.PetEntry
-import com.alexander.udacity.udacity_pets_sqlite.data.PetDbHelper
 import kotlinx.android.synthetic.main.activity_editor.edit_pet_breed
 import kotlinx.android.synthetic.main.activity_editor.edit_pet_name
 import kotlinx.android.synthetic.main.activity_editor.edit_pet_weight
 import kotlinx.android.synthetic.main.activity_editor.spinner_gender
 
-class EditorActivity : AppCompatActivity() {
+class EditorActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {
 
     private val TAG = EditorActivity::class.java.simpleName
+    private val ID_LOADER_PET = 0
     private var mGender = 0
+    private var mUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_editor)
 
         setupSpinner()
+        setEditMode()
+
+        loaderManager.initLoader(ID_LOADER_PET, null, this)
     }
 
     private fun setupSpinner() {
@@ -59,6 +66,14 @@ class EditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun setEditMode() {
+        mUri = intent.data
+
+        mUri?.let {
+            setTitle(getString(R.string.editor_activity_title_edit_pet))
+        } ?: setTitle(getString(R.string.editor_activity_title_new_pet))
+    }
+
     override fun onCreateOptionsMenu(menu: Menu) : Boolean {
         menuInflater.inflate(R.menu.menu_editor, menu)
         return true
@@ -67,7 +82,11 @@ class EditorActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_save -> {
-                insertPet()
+                if (mUri == null) {
+                    insertPet()
+                } else {
+                    updatePet()
+                }
                 finish()
                 return true
             }
@@ -112,6 +131,39 @@ class EditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun updatePet() {
+        val name = edit_pet_name.text.toString().trim()
+        val breed = edit_pet_breed.text.toString().trim()
+        val gender = mGender
+        var weight = 0
+
+        try {
+            weight = edit_pet_weight.text.toString().toInt()
+        } catch (e: NumberFormatException) {
+            Log.e(TAG, e.message, e)
+        }
+
+        val contentValues = ContentValues()
+        contentValues.put(PetContract.PetEntry.COLUMN_PET_NAME, name)
+        contentValues.put(PetContract.PetEntry.COLUMN_PET_BREED, breed)
+        contentValues.put(PetContract.PetEntry.COLUMN_PET_GENDER, gender)
+        contentValues.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weight)
+
+        var updateCount = 0
+        if (isValidPet(name, breed, gender, weight)) {
+            updateCount = contentResolver.update(
+                    mUri,
+                    contentValues,
+                    null,
+                    null
+            )
+        }
+
+        if (updateCount > 0) {
+            //Toast.makeText(this, getString(R.string.pet_updated), Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun isValidPet(name: String?, breed: String?, gender: Int?, weight: Int?): Boolean {
         if (!PetEntry.isValidName(name)) {
             Toast.makeText(this, getString(R.string.invalid_pet_name), Toast.LENGTH_SHORT).show()
@@ -131,5 +183,35 @@ class EditorActivity : AppCompatActivity() {
         }
 
         return true
+    }
+
+    override fun onCreateLoader(id: Int, bundle: Bundle?): Loader<Cursor>? {
+        if (id == ID_LOADER_PET && mUri != null) {
+            return CursorLoader(this, mUri, null, null, null, null)
+        }
+
+        return null
+    }
+
+    override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
+        if (loader.id == ID_LOADER_PET) {
+            cursor.moveToFirst()
+            val petName = cursor.getString(cursor.getColumnIndex(PetEntry.COLUMN_PET_NAME))
+            val petBreed = cursor.getString(cursor.getColumnIndex(PetEntry.COLUMN_PET_BREED))
+            val petWeight = cursor.getInt(cursor.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT))
+            val petGender = cursor.getInt(cursor.getColumnIndex(PetEntry.COLUMN_PET_GENDER))
+
+            edit_pet_name.setText(petName)
+            edit_pet_breed.setText(petBreed)
+            edit_pet_weight.setText(petWeight.toString())
+            spinner_gender.setSelection(petGender)
+        }
+    }
+
+    override fun onLoaderReset(loader: Loader<Cursor>) {
+        edit_pet_name.text.clear()
+        edit_pet_breed.text.clear()
+        edit_pet_weight.text.clear()
+        spinner_gender.setSelection(0)
     }
 }

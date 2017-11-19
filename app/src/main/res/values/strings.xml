@@ -22,6 +22,8 @@
     <!-- Title for the activity to add a new pet [CHAR LIMIT=20] -->
     <string name="editor_activity_title_new_pet">Add a Pet</string>
 
+    <string name="editor_activity_title_edit_pet">Edit Pet</string>
+
     <!-- Label for editor menu option to save pet and leave editor [CHAR LIMIT=20] -->
     <string name="action_save">Save</string>
 
@@ -67,6 +69,8 @@
     <string name="pet_saved">Pet saved</string>
 
     <string name="unable_save_pet">Unable to save pet</string>
+
+    <string name="pet_updated">Updated pet details</string>
 
     <string name="invalid_pet_name">Invalid pet name</string>
 

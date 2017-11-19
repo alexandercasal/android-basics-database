@@ -6,6 +6,7 @@ import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
+import android.util.Log
 
 class PetProvider : ContentProvider() {
 
@@ -86,6 +87,7 @@ class PetProvider : ContentProvider() {
             PET_ID -> {
                 val select = "${PetContract.PetEntry._ID} = ?"
                 val args = arrayOf(ContentUris.parseId(uri).toString())
+                println(args.toString())
                 return updatePet(uri, contentValues, select, args)
             }
             else -> throw IllegalArgumentException("Update is not supported for ${uri}")
